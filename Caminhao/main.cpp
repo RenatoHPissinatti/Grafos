@@ -1,5 +1,6 @@
 #include <iostream>
 #include <bits/stdc++.h>
+#include <iomanip>
 
 using namespace std;
 #define fastio ios::sync_with_stdio(false); cin.tie(nullptr);
@@ -89,6 +90,53 @@ int main() {
         --a; --b;
         cout << ans[a][b] << '\n';
     }
+
+    // --- INÍCIO DA GERAÇÃO DA INTERFACE VISUAL ---
+    ofstream html("projeto_caminhao.html");
+    html << "<!DOCTYPE html>\n<html>\n<head>\n"
+         << "  <script type=\"text/javascript\" src=\"https://unpkg.com/vis-network/standalone/umd/vis-network.min.js\"></script>\n"
+         << "  <style type=\"text/css\"> #mynetwork { width: 800px; height: 600px; border: 1px solid lightgray; background-color: #f9f9f9; } </style>\n"
+         << "</head>\n<body>\n"
+         << "  <h2>Projeto Grafos - Caminhao</h2>\n"
+         << "  <div id=\"mynetwork\"></div>\n"
+         << "  <script type=\"text/javascript\">\n"
+         << "    var nodes = new vis.DataSet([\n";
+
+    // Cria os nós
+    for (int i = 0; i < N; ++i) {
+        html << "      {id: " << i << ", label: '" << i + 1 << "'},\n";
+    }
+
+    html << "    ]);\n    var edges = new vis.DataSet([\n";
+
+    // Identifica quais arestas foram escolhidas para a árvore (AL)
+    set<pair<int, int>> mst_edges;
+    for (int u = 0; u < N; ++u) {
+        for (auto [v, w] : AL[u]) {
+            mst_edges.insert({min(u, v), max(u, v)});
+        }
+    }
+
+    // Desenha todas as arestas lidas
+    for (auto [w, u, v] : EL) {
+        bool is_mst = mst_edges.count({min(u, v), max(u, v)});
+        string color = is_mst ? "blue" : "red";
+        int width = is_mst ? 3 : 1;
+
+        html << "      {from: " << u << ", to: " << v
+             << ", label: '" << w << "'"
+             << ", color: {color: '" << color << "', highlight: '" << color << "'}"
+             << ", width: " << width << "},\n";
+    }
+
+    html << "    ]);\n"
+         << "    var container = document.getElementById('mynetwork');\n"
+         << "    var data = { nodes: nodes, edges: edges };\n"
+         << "    var options = { physics: { stabilization: false }, edges: { font: { align: 'top' } } };\n"
+         << "    var network = new vis.Network(container, data, options);\n"
+         << "  </script>\n</body>\n</html>\n";
+    html.close();
+    // --- FIM DA GERAÇÃO DA INTERFACE VISUAL ---
 
     return 0;
 }
